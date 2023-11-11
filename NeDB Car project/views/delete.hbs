@@ -1,0 +1,24 @@
+{{> navbar}}
+<div style="margin-left: 10%; margin-top: 2%;">
+<h1>Delete cars page</h1>
+<form method="GET" id="Dels">
+<button class="btn  btn-danger" type="submit" onclick="confirm('confirm delete all cars')" formaction="/DelAll" >DELETE ALL CARS</button>
+<button class="btn btn-secondary" type="submit" formaction="/DelSel">DELETE SELECTED</button>
+
+</form>
+{{#if numRemoved}}
+        <div style="width: 20%; margin-top: 1%;" class="alert alert-danger"> Removed {{numRemoved}} cars</div>
+{{/if}}
+</div>
+<table class="table" style="width: 70%; margin: 0 auto;">
+        <tr>
+            <th scope="col">_id</th>
+            <th scope="col">ubezpieczony</th>
+            <th scope="col">benzyna</th>
+            <th scope="col">uszkodzony</th>
+            <th scope="col">naped 4x4</th>
+        </tr>
+{{#each samochody}}
+    {{>delrow}}
+{{/each}}
+</table>

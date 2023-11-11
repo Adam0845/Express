@@ -1,0 +1,16 @@
+{{> navbar}}
+<div class="container ml-2">
+<h1>Add car page</h1>
+{{#if newDocId}}
+        <div class="alert alert-success">new car with id =  {{newDocId}} added to database!</div>
+{{/if}}
+<form action="/addCars" method="POST" id="addForm">
+<ul style="list-style: none;">
+<li style="margin-bottom: 10px;"><input class="form-check-input" type="checkbox" name="ubezpieczony" value="on"> ubezpieczony</li>
+<li style="margin-bottom: 10px;"><input class="form-check-input" type="checkbox" name="benzyna" value="on"> benzyna</li>
+<li style="margin-bottom: 10px;"><input class="form-check-input" type="checkbox" name="uszkodzony" value="on"> uszkodzony</li>
+<li style="margin-bottom: 10px;"><input class="form-check-input" type="checkbox" name="naped" value="on"> napęd 4x4</li>
+<button type="submit"  class="btn btn-dark">add</button>
+</ul>
+</form>
+</div>

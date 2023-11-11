@@ -1,0 +1,28 @@
+<tr>
+    <form method="GET" action="/edited">
+    <td>{{_id}}</td>
+    <td><select name="ubezpieczony">
+        <option>TAK</option>
+        <option>NIE</option>
+        <option>BRAK</option>
+    </select ></td>
+    <td><select name="benzyna">
+        <option>TAK</option>
+        <option>NIE</option>
+        <option>BRAK</option>
+    </select></td>
+    <td><select name="uszkodzony">
+        <option>TAK</option>
+        <option>NIE</option>
+        <option>BRAK</option>
+    </select></td>
+    <td><select name="naped">
+        <option>TAK</option>
+        <option>NIE</option>
+        <option>BRAK</option>
+    </select></td>
+    <input type="hidden" value="{{_id}}" name="id">
+    <td><button class="btn  btn-danger" type="submit">UPDATE</button></td>
+    <td><button class="btn  btn-dark" type="submit" formaction="/editCars">CANCEL</button></td>
+    </form>
+</tr>

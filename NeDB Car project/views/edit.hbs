@@ -1,0 +1,16 @@
+{{> navbar}}
+<h1>edit/update page</h1>
+<table class="table" style="width: 70%; margin: 0 auto;">
+        <tr>
+            <th scope="col">_id</th>
+            <th scope="col">ubezpieczony</th>
+            <th scope="col">benzyna</th>
+            <th scope="col">uszkodzony</th>
+            <th scope="col">naped 4x4</th>
+        </tr>
+{{#each samochody}}
+        {{>editrow}} 
+{{/each}}    
+ {{#if carToEdit}}
+        {{>editform carToEdit}} 
+{{/if}}

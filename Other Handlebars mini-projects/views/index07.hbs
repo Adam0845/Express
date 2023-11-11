@@ -1,0 +1,29 @@
+<h1>{{subject}}</h1>
+<div class="text">wyswietlenie calej tablicy jedno lub dwu wymiarowej</div>
+<div class="grupka">
+<p>{{langs}}</p>
+<p>{{digits}}</p>
+</div>
+<div class="text">pobranie elementu tablicy jedno lub dwu-wymiarowej</div>
+<div class="grupka">
+<p>{{langs.[0]}}</p>
+<p>{{digits.[0].[1]}}</p>
+</div>
+<div class="text">iteracja przez tablice</div>
+<div class="grupka">
+{{#each countries}}
+<p>{{@index}} {{this}}</p>
+{{/each}}
+</div>
+<div class="text">iteracja przez obiekt</div>
+<div class="grupka">
+{{#each user}}
+<p>{{@index}} {{@key}} {{this}}</p>
+{{/each}}
+</div>
+<div class="text">iteracja przez tablice obiektow</div>
+<div class="grupka">
+{{#each books}}
+<p>{{@index}} {{title}}</p>
+{{/each}}
+</div>

@@ -1,0 +1,7 @@
+<h1>{{subject}}</h1>
+<form action="/handleForm" method="GET" id="form">
+{{#each fields }}
+   <input type="radio" name="radyjo" value="{{name}}"> {{name}}
+{{/each}}
+<button type="submit">Wyslij</button>
+</form>

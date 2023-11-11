@@ -1,0 +1,9 @@
+<h1>{{subject}}</h1>
+<form action="/handleForm" method="GET" id="form">
+<select multiple name="selekcik" form="form">
+{{#each fields }}
+   <option> {{name}}</option>
+{{/each}}
+</select>
+<button type="submit">Wyslij</button>
+</form>

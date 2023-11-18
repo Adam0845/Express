@@ -1,0 +1,23 @@
+{{>navbar}}
+<div class=" bg-light  h-100 p-3 text-center" style="width: 10%; min-height: 100vh; font-weight: bolder; font-size: 20px; float: left;">
+    <p class="text-secondary">filemanager</p>
+    <a href="/delAll">USUŃ DANE O PLIKACH Z TABLICY</a>
+</div>
+<table class=" table text-center" style="width: 90%; float: right;">
+    <thead class="bg-info text-white">
+    <tr>
+        <th scope="col">id</th>
+        <th scope="col">obraz</th>  
+        <th scope="col">name</th>      
+        <th scope="col">size</th>
+        <th scope="col">type</th>
+        <th scope="col">-</th>  
+        <th scope="col">-</th>  
+        <th scope="col">-</th>  
+        <th scope="col">-</th>  
+    </tr>
+    </thead>
+{{#each uploadedFiles}}
+{{>filerow}}
+{{/each}}
+</table>

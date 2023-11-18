@@ -1,0 +1,6 @@
+{{>navbar}}
+<div class="float-left bg-light text-secondary h-100 p-3 text-center d-inline-block " style="width: 10%; min-height: 100vh; font-weight: bolder; font-size: 20px;">multiupload</div>
+<form class="d-inline-block p-3" action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" multiple required name="uploaded">
+    <button type="submit"> upload </button>
+</form>

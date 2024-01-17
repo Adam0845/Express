@@ -5,11 +5,12 @@ const fs = require("fs")
 const hbs = require('express-handlebars');
 const path = require("path")
 app.use(express.static('static'))
-app.set('views', path.join(__dirname, 'views'));         
-app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));   
+app.set('views', path.join(__dirname, 'views'));
+app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));
 app.set('view engine', 'hbs');
 //TABLICA Z PLIKAMI 
-const filepath = path.join(__dirname, "files", "file01.txt")
+
+const filepath = path.join(__dirname, "upload", "file01.txt")
 const mapaRozszerzen = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
@@ -24,17 +25,17 @@ app.engine('hbs', hbs({
     extname: '.hbs',
     partialsDir: "views/partials",
     helpers: {
-        getIco: function(type) {
-            const extension = mapaRozszerzen[type] 
+        getIco: function (type) {
+            const extension = mapaRozszerzen[type]
             return `${extension}`;
         }
-        }
-    }));
+    }
+}));
 //------------------------------------------------------
-app.get('/addfolder' , function (req, res) {
+app.get('/addfolder', function (req, res) {
     const dirname = req.query.dirname;
-    if (!fs.existsSync(`./files/${dirname}`)) {
-        fs.mkdir(`./files/${dirname}`, (err) => {
+    if (!fs.existsSync(`./upload/${dirname}`)) {
+        fs.mkdir(`./upload/${dirname}`, (err) => {
             if (err) throw err
             console.log("jest");
             res.redirect("/filemanager")
@@ -46,8 +47,8 @@ app.get('/addfolder' , function (req, res) {
 })
 app.get("/addfile", function (req, res) {
     const filename = req.query.filename;
-    if (!fs.existsSync(`./files/${filename}`)) {
-        fs.writeFile(`./files/${filename}`, "", (err) => {
+    if (!fs.existsSync(`./upload/${filename}`)) {
+        fs.writeFile(`./upload/${filename}`, "", (err) => {
             if (err) throw err
             console.log("plik utworzony");
             res.redirect("/filemanager")
@@ -58,13 +59,35 @@ app.get("/addfile", function (req, res) {
     }
 })
 app.get("/", function (req, res) {
-    res.render('filemanager2.hbs');  
+    res.render('filemanager2.hbs');
 })
 
 app.get("/filemanager", function (req, res) {
-    res.render('filemanager2.hbs');  
+    dirs = [] //folders
+    filestab = [] //files
+    fs.readdir('./upload/', (err, files) => {
+        if (err) throw err
+        console.log("lista 1  - ", files);
+        files.forEach((file) => {
+            fs.lstat("./upload/" + file, (err, stats) => {
+                console.log(file, stats.isDirectory());
+                if (stats.isDirectory()) {
+
+                    dirs.push(file)
+                    console.log('foldery:')
+                    console.log(dirs)
+                }
+                else {
+                    filestab.push(file)
+                    console.log('pliki')
+                    console.log(filestab)
+                }
+            })
+        })
+    })
+    res.render('filemanager2.hbs', { filestab, dirs });
 })
- 
+
 app.listen(PORT, function () {
-        console.log("start serwera na porcie " + PORT )
+    console.log("start serwera na porcie " + PORT)
 })

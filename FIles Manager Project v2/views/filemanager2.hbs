@@ -29,22 +29,34 @@
         <button onclick="CancelFiles()" class="btn btn-rounded btn-warning">Cancel</button>
     </form>
 </dialog>
+
 <div class=" bg-light  h-100 p-3 text-center"
     style="width: 10%; min-height: 100vh; font-weight: bolder; font-size: 20px; float: left;">
     <button onclick="FolderMenu()" class="btn btn-rounded btn-warning w-100 mb-3">nowy folder</button>
-    <button onclick="FilesMenu()" class="btn btn-rounded btn-warning w-100 ">nowy plik tekstowy</button>
+    <button onclick="FilesMenu()" class="btn btn-rounded btn-warning w-100 mb-3">nowy plik tekstowy</button>
+    <div class="btn btn-rounded w-100 btn-warning "  > 
+   <form action="/upload" method="POST" enctype="multipart/form-data">
+   
+    <label for="fileInput">[wybierz...]
+        <input type="file" multiple required name="uploaded" id="fileInput" style="display: none;">
+    </label>
+    <button class="btn btn-rounded btn-success "type="submit">OK</button>
+    </div>
+</form>
+    
 </div>
-<div style="display: block;">
-    <p>katalogi</p>
+
+<div style="display: flex; flex-direction: column;">
+<div style="display: block; margin-top: 20px">
     {{#each dirs}}
     {{>diroption}}
     {{/each}}
 
 
 </div>
-<div style="display: block;">
-    <p>pliki</p>
+<div style="display: block; margin-top: 20px">
     {{#each filestab}}
     {{>fileoption}}
     {{/each}}
+</div>
 </div>

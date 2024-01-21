@@ -12,16 +12,7 @@ app.set('view engine', 'hbs');
 //TABLICA Z PLIKAMI 
 
 const filepath = path.join(__dirname, "upload", "file01.txt")
-const mapaRozszerzen = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/gif': 'gif',
-    'text/plain': 'txt',
-    'application/vnd.oasis.opendocument.text': 'docs',
-    'video/mp4': 'mp4',
-    'application/x-zip-compressed': 'zip',
-    'application/pdf': 'pdf'
-}
+const ksiega_rozszerzen = ['jpg','pdf','doc','mp4','zip','txt','png','gif','docs','txt','svg']
 app.engine('hbs', hbs({
     extname: '.hbs',
     partialsDir: "views/partials",
@@ -29,9 +20,43 @@ app.engine('hbs', hbs({
         getIco: function (type) {
             const extension = mapaRozszerzen[type]
             return `${extension}`;
+        },
+        getExtension: function(fileName) {
+            let parts = fileName.split('.');
+            console.log(parts)
+            if (parts.length > 1) {
+                for(let i = 0; i < ksiega_rozszerzen.length;++i)
+                {
+                    if(parts[parts.length - 1] == ksiega_rozszerzen[i])
+                    {
+                        return parts[parts.length - 1];
+                    }
+                }
+                return 'else';
+                
+            }
+            else {
+                return "else";
+            }
         }
     }
 }));
+app.get("/delete", function (req, res) {
+    filepath_del = path.join(__dirname, "upload", req.query.name)
+    fs.unlink(filepath_del,  (err) =>{
+            if (err) throw err
+            console.log("czas 1: " + new Date().getMilliseconds());
+        })
+        res.redirect('/filemanager')
+ })
+ app.get("/deldir", function (req, res) {
+    filepath_del = path.join(__dirname, "upload", req.query.name)
+    fs.rmdir(filepath_del, (err) => {
+        if (err) throw err
+        console.log("nie ma ");
+    })
+    res.redirect('/filemanager')
+ })
 //------------------------------------------------------
 app.get('/addfolder', function (req, res) {
     const dirname = req.query.dirname;
@@ -60,26 +85,33 @@ app.get("/addfile", function (req, res) {
     }
 })
 app.get("/", function (req, res) {
-    res.render('filemanager2.hbs');
+    res.redirect("/filemanager")
 })
+
 
 app.get("/filemanager", function (req, res) {
     dirs = [] //folders
     filestab = [] //files
+    extensions = []
     fs.readdir('./upload/', (err, files) => {
         if (err) throw err
         console.log("lista 1  - ", files);
         files.forEach((file) => {
             fs.lstat("./upload/" + file, (err, stats) => {
-                console.log(file, stats.isDirectory());
+                if (err) {
+                    console.log(err);
+                    return;
+                }
                 if (stats.isDirectory()) {
 
                     dirs.push(file)
+                    extensions.push()
                     console.log('foldery:')
                     console.log(dirs)
                 }
                 else {
                     filestab.push(file)
+                    
                     console.log('pliki')
                     console.log(filestab)
                 }

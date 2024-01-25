@@ -9,8 +9,7 @@ app.use(express.static('static'))
 app.set('views', path.join(__dirname, 'views'));
 app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));
 app.set('view engine', 'hbs');
-//TABLICA Z PLIKAMI 
-
+let actuallocation = {root: "/"}
 const filepath = path.join(__dirname, "upload", "file01.txt")
 const ksiega_rozszerzen = ['jpg','pdf','doc','mp4','zip','txt','png','gif','docs','txt','svg']
 app.engine('hbs', hbs({
@@ -90,14 +89,20 @@ app.get("/", function (req, res) {
 
 
 app.get("/filemanager", function (req, res) {
-    dirs = [] //folders
-    filestab = [] //files
-    extensions = []
-    fs.readdir('./upload/', (err, files) => {
+    
+    let dirname = req.query.name;
+    if (dirname) {
+        actuallocation = {root: "/" + dirname}
+    }
+    console.log(dirname);
+    let dirs = [] //folders
+    let filestab = [] //files
+    let extensions = []
+    fs.readdir('./upload' + actuallocation.root, (err, files) => {
         if (err) throw err
         console.log("lista 1  - ", files);
         files.forEach((file) => {
-            fs.lstat("./upload/" + file, (err, stats) => {
+            fs.lstat("./upload" + actuallocation.root + "/" + file, (err, stats) => {
                 if (err) {
                     console.log(err);
                     return;
@@ -127,13 +132,23 @@ app.post('/upload', function (req, res) {
     form.uploadDir = __dirname + '/upload';
     form.keepFilenames = true;
     form.parse(req, function (err, fields, files) {
-        Object.keys(files).forEach(function (name) {
-            const file = files[name];
-            const oldPath = file.path;
-            const newPath = path.join(form.uploadDir, file.name);
-
-            fs.renameSync(oldPath, newPath);
-        });
+        if (err) {
+            console.error(err.message);
+        }
+        if (!Array.isArray(files.uploaded)) {
+            const file = files.uploaded.name;
+            const newPath = path.join(form.uploadDir, file);
+            fs.renameSync(files.uploaded.path, newPath);
+        }
+        else
+        {
+            for(let i = 0; i < files.uploaded.length; i++)
+            {
+                const file = files.uploaded[i].name;
+                const newPath = path.join(form.uploadDir, file);
+                fs.renameSync(files.uploaded[i].path, newPath);
+            }
+        }
     });
     res.redirect("/filemanager")
 });

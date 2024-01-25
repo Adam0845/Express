@@ -19,6 +19,7 @@
         <input type="text" name="dirname" id="dirname">
         <input class="btn btn-rounded btn-warning" type="submit" value="OK">
         <button onclick="CancelFolders()" class="btn btn-rounded btn-warning">Cancel</button>
+        <input type="hidden" name="root" value="{{root}}" />
     </form>
 </dialog>
 <dialog id="files">
@@ -47,6 +48,7 @@
 </div>
 
 <div style="display: flex; flex-direction: column;">
+    <p>home{{{actuallocation.root}}}</p>
 <div style="display: block; margin-top: 20px">
     {{#each dirs}}
     {{>diroption}}

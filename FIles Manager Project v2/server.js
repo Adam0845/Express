@@ -4,14 +4,17 @@ const PORT = 3000;
 const fs = require("fs");
 const formidable = require('formidable');
 const hbs = require('express-handlebars');
-const path = require("path")
+const path = require("path");
+const { dir } = require("console");
 app.use(express.static('static'))
 app.set('views', path.join(__dirname, 'views'));
 app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));
 app.set('view engine', 'hbs');
-let actuallocation = {root: "/"}
+let currentpath = "./upload"
+let splitedloc = [];
 const filepath = path.join(__dirname, "upload", "file01.txt")
 const ksiega_rozszerzen = ['jpg','pdf','doc','mp4','zip','txt','png','gif','docs','txt','svg']
+
 app.engine('hbs', hbs({
     extname: '.hbs',
     partialsDir: "views/partials",
@@ -37,20 +40,30 @@ app.engine('hbs', hbs({
             else {
                 return "else";
             }
+        },
+        formatPath: function (index) {
+            return '/' + splitedloc.slice(0, index + 1).join('/');     
+        },
+        takeLast: function (splitedloc) {
+            let lastFolder = splitedloc[splitedloc.length - 1];;
+            return '/' + lastFolder;
+        },
+        equal: function (a, b) {
+            return a === b;
         }
     }
 }));
 app.get("/delete", function (req, res) {
-    filepath_del = path.join(__dirname, "upload", req.query.name)
-    fs.unlink(filepath_del,  (err) =>{
+    filepath_del = path.join(currentpath, req.query.name)
+    fs.unlink(filepath_del,   (err) =>{
             if (err) throw err
             console.log("czas 1: " + new Date().getMilliseconds());
         })
         res.redirect('/filemanager')
  })
  app.get("/deldir", function (req, res) {
-    filepath_del = path.join(__dirname, "upload", req.query.name)
-    fs.rmdir(filepath_del, (err) => {
+    filepath_del = path.join(currentpath, req.query.name)
+    fs.rmdir(filepath_del, { recursive:true }, (err) => {
         if (err) throw err
         console.log("nie ma ");
     })
@@ -59,8 +72,8 @@ app.get("/delete", function (req, res) {
 //------------------------------------------------------
 app.get('/addfolder', function (req, res) {
     const dirname = req.query.dirname;
-    if (!fs.existsSync(`./upload/${dirname}`)) {
-        fs.mkdir(`./upload/${dirname}`, (err) => {
+    if (!fs.existsSync(currentpath + "/" +  + dirname)) {
+        fs.mkdir(currentpath + "/" +  dirname, (err) => {
             if (err) throw err
             console.log("jest");
             res.redirect("/filemanager")
@@ -72,8 +85,8 @@ app.get('/addfolder', function (req, res) {
 })
 app.get("/addfile", function (req, res) {
     const filename = req.query.filename;
-    if (!fs.existsSync(`./upload/${filename}`)) {
-        fs.writeFile(`./upload/${filename}`, "", (err) => {
+    if (!fs.existsSync(currentpath + "/" +  filename)) {
+        fs.writeFile(currentpath + "/" +  filename, "", (err) => {
             if (err) throw err
             console.log("plik utworzony");
             res.redirect("/filemanager")
@@ -90,19 +103,30 @@ app.get("/", function (req, res) {
 
 app.get("/filemanager", function (req, res) {
     
-    let dirname = req.query.name;
-    if (dirname) {
-        actuallocation = {root: "/" + dirname}
+    if(req.query.path)
+    {
+        
+        currentpath = path.join(currentpath, req.query.path);
+        console.log(currentpath)
     }
-    console.log(dirname);
+    if(req.query.back)
+    {
+        console.log(req.query.back)
+        currentpath = path.join("./", req.query.back);
+        console.log(currentpath)
+    }
+    splitedloc = currentpath.replace(/\\/g, '/').split("/");
+    console.log('splitedlocs',splitedloc)
+
     let dirs = [] //folders
     let filestab = [] //files
     let extensions = []
-    fs.readdir('./upload' + actuallocation.root, (err, files) => {
+    fs.readdir(currentpath, (err, files) => {
+        
         if (err) throw err
         console.log("lista 1  - ", files);
         files.forEach((file) => {
-            fs.lstat("./upload" + actuallocation.root + "/" + file, (err, stats) => {
+            fs.lstat(currentpath + "/" + file, (err, stats) => {
                 if (err) {
                     console.log(err);
                     return;
@@ -123,13 +147,14 @@ app.get("/filemanager", function (req, res) {
             })
         })
     })
-    res.render('filemanager2.hbs', { filestab, dirs });
+    res.render('filemanager2.hbs', { filestab, dirs, currentpath:currentpath, splitedloc });
+  
 })
 app.post('/upload', function (req, res) {
     let form = formidable({});
     form.keepExtensions = true
     form.multiples = true
-    form.uploadDir = __dirname + '/upload';
+    form.uploadDir = currentpath;
     form.keepFilenames = true;
     form.parse(req, function (err, fields, files) {
         if (err) {

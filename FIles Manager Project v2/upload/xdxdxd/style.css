@@ -1,0 +1,29 @@
+table
+{
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+table, td {
+    border: 1px solid black;
+}
+td
+{
+    padding: 15px;
+}
+.snake
+{
+    background-color: red;
+}
+.border
+{
+    background: url(gfx/border.jpg);
+    background-repeat: no-repeat;
+    background-size: auto;  
+}
+
+.apple
+{
+    background: url(gfx/apple.png);
+    background-repeat: no-repeat;
+    background-size: auto;  
+}

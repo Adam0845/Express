@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Adam Cinal 4Ic</title>
+<style>
+    table,tr,td {
+        border: 1px solid black;
+    }
+</style>
+</head>
+<body>
+    <h2>Tabelka mnozenia</h2>
+    <table id="tabelka">
+    </table>
+
+    <script>
+        let tabela = document.getElementById("tabelka");
+        let tab2 = '';
+        for (let i = 1; i <= 10; i++) {
+            tab2 += '<tr>';
+            for (let j = 1; j <= 10; j++) {
+                if (j === 1) {
+                    tab2 += `<td>${i}</td>`;
+                } else {
+                    tab2 += `<td>${i * j}</td>`;
+                }
+            }
+            tab2 += '</tr>';
+        }
+
+            tabela.innerHTML = tab2;
+      
+    </script>
+
+</body>
+</html>

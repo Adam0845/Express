@@ -13,7 +13,7 @@ app.set('view engine', 'hbs');
 let currentpath = "upload"
 let splitedloc = [];
 const filepath = path.join(__dirname, "upload", "file01.txt")
-const ksiega_rozszerzen = ['jpg','pdf','doc','mp4','zip','txt','png','gif','docs','txt','svg','html','css',"json","js"]
+const ksiega_rozszerzen = ['jpg', 'pdf', 'doc', 'mp4', 'zip', 'txt', 'png', 'gif', 'docs', 'txt', 'svg', 'html', 'css', "json", "js"]
 app.engine('hbs', hbs({
     extname: '.hbs',
     partialsDir: "views/partials",
@@ -22,26 +22,24 @@ app.engine('hbs', hbs({
             const extension = mapaRozszerzen[type]
             return `${extension}`;
         },
-        getExtension: function(fileName) {
+        getExtension: function (fileName) {
             let parts = fileName.split('.');
             console.log(parts)
             if (parts.length > 1) {
-                for(let i = 0; i < ksiega_rozszerzen.length;++i)
-                {
-                    if(parts[parts.length - 1] == ksiega_rozszerzen[i])
-                    {
+                for (let i = 0; i < ksiega_rozszerzen.length; ++i) {
+                    if (parts[parts.length - 1] == ksiega_rozszerzen[i]) {
                         return parts[parts.length - 1];
                     }
                 }
                 return 'else';
-                
+
             }
             else {
                 return "else";
             }
         },
         formatPath: function (index) {
-            return '/' + splitedloc.slice(0, index + 1).join('/');     
+            return '/' + splitedloc.slice(0, index + 1).join('/');
         },
         takeLast: function (splitedloc) {
             let lastFolder = splitedloc[splitedloc.length - 1];;
@@ -53,27 +51,27 @@ app.engine('hbs', hbs({
     }
 }));
 app.get("/delete", function (req, res) {
-    filepath_del = path.join("./" +currentpath, req.query.name)
-    fs.unlink(filepath_del,   (err) =>{
-            if (err) throw err
-            console.log("czas 1: " + new Date().getMilliseconds());
-        })
-        res.redirect('/filemanager')
- })
- app.get("/deldir", function (req, res) {
     filepath_del = path.join("./" + currentpath, req.query.name)
-    fs.rmdir(filepath_del, { recursive:true }, (err) => {
+    fs.unlink(filepath_del, (err) => {
+        if (err) throw err
+        console.log("czas 1: " + new Date().getMilliseconds());
+    })
+    res.redirect('/filemanager')
+})
+app.get("/deldir", function (req, res) {
+    filepath_del = path.join("./" + currentpath, req.query.name)
+    fs.rmdir(filepath_del, { recursive: true }, (err) => {
         if (err) throw err
         console.log("nie ma ");
     })
     res.redirect('/filemanager')
- })
- 
+})
+
 //------------------------------------------------------
 app.get('/addfolder', function (req, res) {
     const dirname = req.query.dirname;
-    if (!fs.existsSync( "./" + currentpath + "/" +  + dirname)) {
-        fs.mkdir(currentpath + "/" +  dirname, (err) => {
+    if (!fs.existsSync("./" + currentpath + "/" + + dirname)) {
+        fs.mkdir(currentpath + "/" + dirname, (err) => {
             if (err) throw err
             console.log("jest");
             res.redirect("/filemanager")
@@ -85,8 +83,8 @@ app.get('/addfolder', function (req, res) {
 })
 app.get("/addfile", function (req, res) {
     const filename = req.query.filename;
-    if (!fs.existsSync("./" + currentpath + "/" +  filename)) {
-        fs.writeFile("./" + currentpath + "/" +  filename, "", (err) => {
+    if (!fs.existsSync("./" + currentpath + "/" + filename)) {
+        fs.writeFile("./" + currentpath + "/" + filename, "", (err) => {
             if (err) throw err
             console.log("plik utworzony");
             res.redirect("/filemanager")
@@ -99,54 +97,53 @@ app.get("/addfile", function (req, res) {
 app.get("/", function (req, res) {
     res.redirect("/filemanager")
 })
-app.get("/changedir", function(req, res) {
-        const newname = req.query.newname
-        let newPath = "";
-        if(splitedloc[splitedloc.length - 1] === "upload")
-        {
-            newPath = splitedloc.join("/") + "/" + newname;
-        }
-        else
-        {
-            splitedloc.pop()
-            newPath = splitedloc.join("/") + "/" + newname;
-        }
-        
-    
-        if (!fs.existsSync(newPath)) {
-            fs.rename(currentpath, newPath, (err) => {
-                if (err) throw err;
-                console.log("Zmieniono nazwę katalogu");
-                res.redirect("/filemanager");
-                currentpath=newPath;
-            });
-        } else {
+app.get("/changedir", function (req, res) {
+    const newname = req.query.newname
+    let newPath = "";
+    if (splitedloc[splitedloc.length - 1] === "upload") {
+        newPath = splitedloc.join("/") + "/" + newname;
+    }
+    else {
+        splitedloc.pop()
+        newPath = splitedloc.join("/") + "/" + newname;
+    }
+
+
+    if (!fs.existsSync(newPath)) {
+        fs.rename(currentpath, newPath, (err) => {
+            if (err) throw err;
+            console.log("Zmieniono nazwę katalogu");
             res.redirect("/filemanager");
-        }
- });
-    
+            currentpath = newPath;
+        });
+    } else {
+        res.redirect("/filemanager");
+    }
+});
+app.get("/showfile", function (req, res) {
+    const filename = req.query.name;
+    res.render("edytor.hbs", { filename })
+})
 app.get("/filemanager", function (req, res) {
-    
-    if(req.query.path)
-    {
-        
+
+    if (req.query.path) {
+
         currentpath = path.join("./" + currentpath, req.query.path);
         console.log(currentpath)
     }
-    if(req.query.back)
-    {
+    if (req.query.back) {
         console.log(req.query.back)
         currentpath = path.join("./", req.query.back);
         console.log(currentpath)
     }
     splitedloc = currentpath.replace(/\\/g, '/').split("/");
-    console.log('splitedlocs',splitedloc)
+    console.log('splitedlocs', splitedloc)
 
     let dirs = [] //folders
     let filestab = [] //files
     let extensions = []
     fs.readdir("./" + currentpath, (err, files) => {
-        
+
         if (err) throw err
         console.log("lista 1  - ", files);
         files.forEach((file) => {
@@ -164,7 +161,7 @@ app.get("/filemanager", function (req, res) {
                 }
                 else {
                     filestab.push(file)
-                    
+
                     console.log('pliki')
                     console.log(filestab)
                 }
@@ -173,8 +170,8 @@ app.get("/filemanager", function (req, res) {
     })
     dirs.sort()
     filestab.sort()
-    res.render('filemanager2.hbs', { filestab, dirs, currentpath:currentpath, splitedloc });
-  
+    res.render('filemanager2.hbs', { filestab, dirs, currentpath: currentpath, splitedloc });
+
 })
 app.post('/upload', function (req, res) {
     let form = formidable({});
@@ -191,10 +188,8 @@ app.post('/upload', function (req, res) {
             const newPath = path.join(form.uploadDir, file);
             fs.renameSync(files.uploaded.path, newPath);
         }
-        else
-        {
-            for(let i = 0; i < files.uploaded.length; i++)
-            {
+        else {
+            for (let i = 0; i < files.uploaded.length; i++) {
                 const file = files.uploaded[i].name;
                 const newPath = path.join(form.uploadDir, file);
                 fs.renameSync(files.uploaded[i].path, newPath);

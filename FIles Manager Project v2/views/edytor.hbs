@@ -1,0 +1,34 @@
+{{>navbar}}
+<div class=" bg-light  h-100 p-3 text-center"
+    style="width: 10%; min-height: 100vh; font-weight: bolder; font-size: 20px; float: left;">
+
+    <a href="#" class="btn btn-rounded btn-warning w-100 mb-3">zapisz ustawienia</a>
+    <a href="#" class="btn btn-rounded btn-warning w-100 mb-3">zmiana nazwy</a>
+    <a href="#" class="btn btn-rounded btn-primary w-100 mb-3 " style="text-decoration: underline;">podgląd pliku</a>
+
+</div>
+<div>
+    <form>
+        <div>
+            <div id="numeration"></div>
+            <textarea class="form-control" id="edytor" style="height: 500px; width: 500px;"></textarea>
+            <button class="btn btn-rounded btn-warning mt-3" type="submit">zapisz zmiany</button>
+        </div>
+    </form>
+</div>
+<script>
+    let edytor = document.getElementById('edytor');
+    let numeracja = document.getElementById('numeration')
+    edytor.onkeyup = function () {
+        console.log("nnnn")
+
+        let lines = edytor.value.split("\n");
+        for (let i = 0; i < lines.length; i++) {
+            if (i !== 0) {
+                numeracja.innerHTML += i;
+            }
+
+        }
+        console.log(lines)
+    }
+</script>

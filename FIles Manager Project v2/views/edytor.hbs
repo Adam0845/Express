@@ -1,34 +1,184 @@
 {{>navbar}}
 <div class=" bg-light  h-100 p-3 text-center"
     style="width: 10%; min-height: 100vh; font-weight: bolder; font-size: 20px; float: left;">
-
-    <a href="#" class="btn btn-rounded btn-warning w-100 mb-3">zapisz ustawienia</a>
-    <a href="#" class="btn btn-rounded btn-warning w-100 mb-3">zmiana nazwy</a>
+    <div class="btn-group mb-3" role="group" aria-label="Basic example">
+        <button id="lowfont" class="btn btn-secondary bg-danger ">font -</button>
+        <button  id="themes" class="btn btn-secondary bg-warning ">Kolory</button>
+        <button id="highfont" class="btn btn-secondary bg-success ">font + </button>
+    </div>
+    <button onclick=ChfileMenu() class="btn btn-rounded btn-warning w-100 mb-3">zmiana nazwy</button>
     <a href="#" class="btn btn-rounded btn-primary w-100 mb-3 " style="text-decoration: underline;">podgląd pliku</a>
 
 </div>
 <div>
-    <form>
+    <form style="display:flex;" action="/savefile?filename={{filename}}" method="POST">
         <div>
-            <div id="numeration"></div>
-            <textarea class="form-control" id="edytor" style="height: 500px; width: 500px;"></textarea>
+            <div class="bg-secondary text-bg-secondary text-white ">/{{filename}}</div>
+            <div id="numeration" style="float: left; padding: 10px; border-right: 4px solid #32CD32; height: 500px;"></div>
+            <textarea  name="content" class="form-control" id="edytor" style="height: 500px; width: 500px;" value="{{content}}" >{{content}}</textarea>
             <button class="btn btn-rounded btn-warning mt-3" type="submit">zapisz zmiany</button>
         </div>
     </form>
 </div>
+<dialog id="changefile">
+    <form action="/chfilename" method="GET">
+        <label for="filechange">zmiana nazwy pliku {{filename}}</label>
+        <input type="text" name="newname" id="newname">
+        <input class="btn btn-rounded btn-warning" type="submit" value="OK">
+        <input type="hidden" name="filename" value="{{filename}}" />
+        <button onclick=CancelChfile() class="btn btn-rounded btn-warning">Cancel</button>
+    </form>
+</dialog>
 <script>
+    function CancelChfile() {
+        document.getElementById('changefile').close()
+    }
+    function ChfileMenu() {
+        document.getElementById('changefile').showModal()
+    }
+    let themes = ["lightcl","betterlight","dark","subtle","blue","mono","red"]
     let edytor = document.getElementById('edytor');
     let numeracja = document.getElementById('numeration')
-    edytor.onkeyup = function () {
-        console.log("nnnn")
-
+    window.onload = function () {
         let lines = edytor.value.split("\n");
-        for (let i = 0; i < lines.length; i++) {
-            if (i !== 0) {
-                numeracja.innerHTML += i;
-            }
-
+          numeracja.innerHTML = ''; 
+        for (let i = 1; i <= lines.length; i++) {
+            numeracja.innerHTML += i + '<br>';
         }
-        console.log(lines)
+        fetch('../data/config.json')  
+            .then(response => response.json())
+            .then(data => {
+                checkTheme(data.theme)
+                numeracja.style.fontSize = data.fontSize + 'px';
+                edytor.style.fontSize = data.fontSize + 'px';
+                console.log('Pobrane dane:', data);
+            })
+            .catch(error => console.log('Błąd!'));
+     };
+     
+    edytor.onkeyup = function () {
+        let lines = edytor.value.split("\n");
+        numeracja.innerHTML = ''; 
+        for (let i = 1; i <= lines.length; i++) {
+            numeracja.innerHTML += i + '<br>';
+        }
     }
+//WSZYSTKIE BUTTONY DZIALANIE NA NICH
+function saveConfig(data) {
+    fetch('/saveConfig', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.error('Błąd:', error));
+}
+function checkTheme(data)
+{
+            
+            if (data === 0)
+            {
+                edytor.style.color = "black";
+                edytor.style.backgroundColor = "white";
+                numeracja.style.backgroundColor = "white";
+                numeracja.style.color = "black";
+            }
+            if(data === 1)
+            {
+                edytor.style.backgroundColor = "#f5f5dc";
+                numeracja.style.backgroundColor = "#f5f5dc";
+                edytor.style.color = "#333333";
+                numeracja.style.color = "#001f3f";
+
+            }
+            if(data === 2)
+            {
+                edytor.style.backgroundColor = "#f5f5f5";
+                numeracja.style.backgroundcolor = "#f5f5f5";
+                edytor.style.color = "#4f4f4f";
+                numeracja.style.color = "#008000";
+
+            }
+            if(data === 3)
+            {
+                edytor.style.backgroundColor = "#3498db";
+                numeracja.style.backgroundColor = "#3498db";
+                edytor.style.color = "#ffffff";
+                numeracja.style.color = "#2c3e50";
+
+            }
+            if(data === 4)
+            {
+                edytor.style.backgroundColor = "#d3d3d3";
+                numeracja.style.backgroundColor = "#d3d3d3";
+                edytor.style.color = "#333333";
+                numeracja.style.color = "#666666";
+
+            }
+            if(data === 5)
+            {
+                edytor.style.backgroundColor = "#333333";
+                numeracja.style.backgroundColor = "#333333";
+                edytor.style.color = "#ff0000";
+                numeracja.style.color = "#ff0000";
+            }
+}
+document.getElementById('themes').addEventListener('click', function () {
+    fetch('../data/config.json')
+        .then(response => response.json())
+        .then(data => {
+            data.theme += 1;
+            if(data.theme === themes.length -1)
+            {
+                data.theme = 0;
+            }
+            checkTheme(data.theme);
+            saveConfig(data);
+        })
+        .catch(error => console.error('Błąd:', error));
+});
+
+document.getElementById('highfont').addEventListener('click', function () {
+    fetch('../data/config.json')
+        .then(response => response.json())
+        .then(data => {
+            data.fontSize += 1;
+            if(data.fontSize === 32)
+            {
+                data.fontSize = 32;
+                alert('Maksymalny rozmiar czczcionki to 32px!')
+            }
+            else {
+                numeracja.style.fontSize = data.fontSize + 'px';
+                edytor.style.fontSize = data.fontSize + 'px';
+            }
+            saveConfig(data);
+        })
+        .catch(error => console.error('Błąd:', error));
+});
+
+document.getElementById('lowfont').addEventListener('click', function () {
+    fetch('../data/config.json')
+        .then(response => response.json())
+        .then(data => {
+            data.fontSize -= 1;
+            if(data.fontSize === 1)
+            {
+                data.fontSize = 1;
+                alert('Minimalny rozmiar czcionki to 1px');
+            }
+            else {
+                edytor.style.fontSize = data.fontSize + 'px';
+                numeracja.style.fontSize = data.fontSize + 'px';
+            }
+            
+            saveConfig(data);
+        })
+        .catch(error => console.error('Błąd:', error));
+});
+
+//=======================================================================
 </script>

@@ -5,7 +5,10 @@ const fs = require("fs");
 const formidable = require('formidable');
 const hbs = require('express-handlebars');
 const path = require("path");
-const { dir } = require("console");
+const cors = require('cors')
+const bodyParser = require('body-parser');
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('static'))
 app.set('views', path.join(__dirname, 'views'));
 app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));
@@ -120,9 +123,34 @@ app.get("/changedir", function (req, res) {
         res.redirect("/filemanager");
     }
 });
+app.get("/chfilename", function (req, res) {
+    const newname = req.query.newname
+    const oldname = req.query.filename;
+    fs.rename(currentpath + "/" + oldname, currentpath + "/" + newname, (err) => {
+        if (err) throw err
+        console.log("Zmieniono nazwę pliku");
+        res.redirect("/showfile?name=" + newname)
+    })
+})
 app.get("/showfile", function (req, res) {
     const filename = req.query.name;
-    res.render("edytor.hbs", { filename })
+     fs.readFile(currentpath + "/" + filename, 'utf8', function (err, content) {
+        if (err) {
+            console.error(err);
+        } else {
+            res.render("edytor.hbs", { filename, content });
+        }
+    });
+})
+app.post("/savefile",function(req, res) {
+    const fname = req.query.filename;
+    const content = req.body.content;
+    console.log("Plik o nazwie:", fname, "zawiera:", content)
+    fs.writeFile(currentpath + "/" + fname, content, (err) => {
+        if (err) throw err
+        console.log("plik zapisany");
+        res.redirect("/filemanager")
+    })
 })
 app.get("/filemanager", function (req, res) {
 
@@ -156,14 +184,14 @@ app.get("/filemanager", function (req, res) {
 
                     dirs.push(file)
                     extensions.push()
-                    console.log('foldery:')
-                    console.log(dirs)
+                    //console.log('foldery:')
+                    //console.log(dirs)
                 }
                 else {
                     filestab.push(file)
 
-                    console.log('pliki')
-                    console.log(filestab)
+                    //console.log('pliki')
+                   // console.log(filestab)
                 }
             })
         })
@@ -198,7 +226,19 @@ app.post('/upload', function (req, res) {
     });
     res.redirect("/filemanager")
 });
+app.post('/saveConfig', (req, res) => {
+    const settings = req.body;
+    console.log('Przesłane ustawienia:', settings);
+    fs.writeFile(__dirname + '/static/data/config.json', JSON.stringify(req.body), (err) => {
+        if (err) {
+            console.error(err);
 
+        } else {
+            console.log("Poprawnie!")
+            res.end();
+        }
+    });
+});
 app.listen(PORT, function () {
     console.log("start serwera na porcie " + PORT)
 })

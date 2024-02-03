@@ -14,7 +14,7 @@
     <form style="display:flex;" action="/savefile?filename={{filename}}" method="POST">
         <div>
             <div class="bg-secondary text-bg-secondary text-white ">/{{filename}}</div>
-            <div id="numeration" style="float: left; padding: 10px; border-right: 4px solid #32CD32; height: 500px;"></div>
+            <div id="numeration" style="float: left; padding: 10px; border-right: 4px solid #32CD32; height: 500px; position: sticky; overflow-y:auto;" ></div>
             <textarea  name="content" class="form-control" id="edytor" style="height: 500px; width: 500px;" value="{{content}}" >{{content}}</textarea>
             <button class="btn btn-rounded btn-warning mt-3" type="submit">zapisz zmiany</button>
         </div>
@@ -26,8 +26,8 @@
         <input type="text" name="newname" id="newname">
         <input class="btn btn-rounded btn-warning" type="submit" value="OK">
         <input type="hidden" name="filename" value="{{filename}}" />
-        <button onclick=CancelChfile() class="btn btn-rounded btn-warning">Cancel</button>
     </form>
+    <button onclick=CancelChfile() class="float-end mt-2 btn btn-rounded btn-warning">Cancel</button>
 </dialog>
 <script>
     function CancelChfile() {

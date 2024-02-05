@@ -17,6 +17,18 @@ let currentpath = "upload"
 let splitedloc = [];
 const filepath = path.join(__dirname, "upload", "file01.txt")
 const ksiega_rozszerzen = ['jpg', 'pdf', 'doc', 'mp4', 'zip', 'txt', 'png', 'gif', 'docs', 'txt', 'svg', 'html', 'css', "json", "js"]
+function takextension(fileName) {
+    let parts = fileName.split('.');
+    console.log(parts)
+    if (parts.length > 1) {
+        for (let i = 0; i < ksiega_rozszerzen.length; ++i) {
+            if (parts[parts.length - 1] == ksiega_rozszerzen[i]) {
+                return parts[parts.length - 1];
+            }
+        }
+    }
+    return 'else';
+}
 app.engine('hbs', hbs({
     extname: '.hbs',
     partialsDir: "views/partials",
@@ -134,7 +146,10 @@ app.get("/chfilename", function (req, res) {
 })
 app.get("/showfile", function (req, res) {
     const filename = req.query.name;
-     fs.readFile(currentpath + "/" + filename, 'utf8', function (err, content) {
+    if (takextension(filename) === "png" || takextension(filename) === "jpg") {
+        res.redirect("/showimage?name=" + filename)
+    }
+    fs.readFile(currentpath + "/" + filename, 'utf8', function (err, content) {
         if (err) {
             console.error(err);
         } else {
@@ -142,7 +157,18 @@ app.get("/showfile", function (req, res) {
         }
     });
 })
-app.post("/savefile",function(req, res) {
+const effects = [
+    { name: "grayscale" },
+    { name: "invert" },
+    { name: "sepia" },
+    { name: "none" }
+]
+app.get("/showimage", function (req, res) {
+    const imagename = req.query.name;
+    console.log(imagename)
+    res.render("image.hbs", { imagename, effects, currentpath })
+})
+app.post("/savefile", function (req, res) {
     const fname = req.query.filename;
     const content = req.body.content;
     console.log("Plik o nazwie:", fname, "zawiera:", content)
@@ -191,7 +217,7 @@ app.get("/filemanager", function (req, res) {
                     filestab.push(file)
 
                     //console.log('pliki')
-                   // console.log(filestab)
+                    // console.log(filestab)
                 }
             })
         })

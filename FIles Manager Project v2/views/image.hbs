@@ -1,0 +1,35 @@
+{{>navbar}}
+<div class=" bg-light  h-100 p-3 text-center"
+    style="width: 10%; min-height: 100vh; font-weight: bolder; font-size: 20px; float: left;">
+    <button id="filters" class="btn btn-secondary bg-warning ">filters</button>
+
+</div>
+<div id="panel" style="float: left;" class="bg-dark">
+    <p id="tytul" style="background-color: rgb(125,0,254); display: none;" class="text-white text-center">Filters</p>
+    <br>
+    {{#each effects}}
+    <div class="text-white text-center">{{name}}</div>
+       <div
+        style="background-image:url('https://www.ivertech.com/Articles/Images/KoalaBear200x200.jpg');filter:{{name}}(100%); height: 200px;">
+          </div>
+    {{/each}}
+</div>
+<div id="main">
+    <p class="bg-dark text-white">{{currentpath}}/{{imagename}}</p>
+
+</div>
+<script>
+    const filterbt = document.getElementById('filters');
+    const panel = document.getElementById('panel');
+    filterbt.addEventListener('click', function () {
+        panel.style.width = "200px";
+        document.getElementById('tytul').style.display = "inherit";
+    });
+</script>
+<style>
+    #panel {
+        width: 0px;
+        transition: width 0.3s;
+        transition-timing-function: ease;
+    }
+</style>

@@ -7,9 +7,11 @@ const hbs = require('express-handlebars');
 const path = require("path");
 const cors = require('cors')
 const bodyParser = require('body-parser');
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('static'))
+app.use(express.static('static'));
+app.use('/upload', express.static('upload'));
 app.set('views', path.join(__dirname, 'views'));
 app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));
 app.set('view engine', 'hbs');
@@ -157,6 +159,11 @@ app.get("/showfile", function (req, res) {
         }
     });
 })
+app.get("/previewImage", function(req, res) {
+    let pathtoimg = req.query.name;
+    res.setHeader('Cache-Control', 'no-cache');
+    res.sendFile(__dirname + pathtoimg);
+});
 const effects = [
     { name: "grayscale" },
     { name: "invert" },
@@ -165,9 +172,17 @@ const effects = [
 ]
 app.get("/showimage", function (req, res) {
     const imagename = req.query.name;
-    console.log(imagename)
-    res.render("image.hbs", { imagename, effects, currentpath })
+    console.log(imagename);
+    res.render("image.hbs", { imagename, effects, currentpath });
 })
+app.post('/saveimage', function(req, res) {
+    const imagedata = req.body.image;
+    const pathtoimg = req.body.path;
+    let imagedata1 = imagedata.split(",")[1]; 
+    console.log(pathtoimg);
+    let imageBuffer = Buffer.from(imagedata1, 'base64');
+    fs.writeFileSync("./" + pathtoimg, imageBuffer);
+});
 app.post("/savefile", function (req, res) {
     const fname = req.query.filename;
     const content = req.body.content;

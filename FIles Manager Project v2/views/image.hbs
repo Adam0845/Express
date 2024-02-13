@@ -4,32 +4,132 @@
     <button id="filters" class="btn btn-secondary bg-warning ">filters</button>
 
 </div>
-<div id="panel" style="float: left;" class="bg-dark">
+<dialog id="changefile">
+    <form action="/chfilename" method="GET">
+        <label for="filechange">zmiana nazwy pliku {{imagename}}</label>
+        <input type="text" name="newname" id="newname" value=".{{getExtension imagename}}">
+        <input class="btn btn-rounded btn-warning" type="submit" value="OK">
+        <input type="hidden" name="filename" value="{{imagename}}" />
+    </form>
+    <button onclick=CancelChfile() class="float-end mt-2 btn btn-rounded btn-warning">Cancel</button>
+</dialog>
+<div id="panel" style="float: left; min-height: 100vh;" class="bg-dark">
     <p id="tytul" style="background-color: rgb(125,0,254); display: none;" class="text-white text-center">Filters</p>
     <br>
     {{#each effects}}
     <div class="text-white text-center">{{name}}</div>
-       <div
-        style="background-image:url('https://www.ivertech.com/Articles/Images/KoalaBear200x200.jpg');filter:{{name}}(100%); height: 200px;">
+       <div id="{{name}}" style="background-image:url('https://www.ivertech.com/Articles/Images/KoalaBear200x200.jpg');filter:{{name}}(100%); height: 200px;">
           </div>
     {{/each}}
 </div>
 <div id="main">
-    <p class="bg-dark text-white">{{currentpath}}/{{imagename}}</p>
+    <p class="bg-dark text-white">/{{currentpath}}/{{imagename}}</p>
+    <div id="yourimage" style="display: none; background-image: url('/{{currentpath}}/{{imagename}}');"></div>
 
 </div>
+<div>
+    <button style="margin-left: 10px; margin-top: 10px;" class="btn btn-secondary bg-warning" onclick="ChfileMenu()">Zmiana nazwy pliku</button>
+    <button style="margin-top: 10px;" class="btn btn-secondary bg-warning" id="save" value="/{{currentpath}}/{{imagename}}">Zapisz zmiany</button>
+    <form action="/previewImage" method="GET" id="previewForm" style="display: inline-block;">
+        <input type="hidden" name="name" value="/{{currentpath}}/{{imagename}}">
+        <button style="margin-top: 10px; text-decoration: underline;" class="btn btn-secondary bg-primary" id="preview" type="submit">Podgląd pliku</button>
+    </form>
+</div>
+
 <script>
+   function CancelChfile() {
+        document.getElementById('changefile').close()
+    }
+    function ChfileMenu() {
+        document.getElementById('changefile').showModal()
+    }
     const filterbt = document.getElementById('filters');
     const panel = document.getElementById('panel');
+    
     filterbt.addEventListener('click', function () {
-        panel.style.width = "200px";
-        document.getElementById('tytul').style.display = "inherit";
+        if(panel.style.width === "0px")
+        {
+            panel.style.width = "200px";
+            document.getElementById('tytul').style.display = "inherit";
+        }
+        else
+        {
+            panel.style.width = "0px";
+            document.getElementById('tytul').style.display = "none";
+        }
     });
+    document.getElementById("grayscale").addEventListener('click', function() {
+        maindivimg.style.filter = 'grayscale(100%)';
+        redrawImage();
+       
+    });
+    document.getElementById('invert').addEventListener('click', function(){
+        maindivimg.style.filter = 'invert(100%)';
+        redrawImage();
+       
+    });
+    document.getElementById('sepia').addEventListener('click', function() {
+        maindivimg.style.filter = 'sepia(100%)';
+        redrawImage();
+      
+    });
+   document.getElementById('none').addEventListener('click', function() {
+        maindivimg.style.filter = 'none';
+        redrawImage();
+        
+    });
+    const maindivimg = document.getElementById('yourimage')
+    const canvas = document.createElement('canvas');
+    canvas.style.marginLeft = "5%";
+    const ctx = canvas.getContext('2d');
+    let image = new Image()
+    image.src = maindivimg.style.backgroundImage.slice(4, -1).replace(/"/g, "");
+    image.onload = function() {
+        canvas.width = image.width;
+        canvas.height = image.height;
+        ctx.filter = maindivimg.style.filter;
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    };
+    document.getElementById('main').append(canvas);
+    function redrawImage() {
+         ctx.clearRect(0, 0, canvas.width, canvas.height);
+         ctx.filter = maindivimg.style.filter;
+         ctx.drawImage(image, 0, 0,canvas.width, canvas.height);
+    }
+
+    function saveimg() {
+        let cp = document.getElementById('save').value;
+        let imageDataURL = canvas.toDataURL("image/jpeg");
+        console.log(imageDataURL);
+        const data = {
+            image: imageDataURL,
+            path: cp
+        }
+        fetch('/saveimage', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.error('Error', error));
+        alert("Zdjecie zostalo zapisane! ")
+    }
+       
+   
+     document.getElementById('save').addEventListener('click', saveimg);
 </script>
 <style>
     #panel {
         width: 0px;
         transition: width 0.3s;
         transition-timing-function: ease;
+    }
+    #yourimage
+    {
+        margin-left: 5%;
+        margin-top: 5%;
     }
 </style>

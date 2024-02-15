@@ -7,6 +7,8 @@ const hbs = require('express-handlebars');
 const path = require("path");
 const cors = require('cors')
 const bodyParser = require('body-parser');
+const cookieparser = require("cookie-parser");
+app.use(cookieparser())
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -280,6 +282,110 @@ app.post('/saveConfig', (req, res) => {
         }
     });
 });
+//login and register
+//==============================================
+//BAZA DANYCH
+const Datastore = require('nedb')
+const users = new Datastore({
+    filename: __dirname + '/static/data/users.db',
+    autoload: true
+});
+//==============================================
+app.get('/register', (req, res) => {
+    res.render('register.hbs');
+});
+app.get('/login', (req, res) => {
+    res.render('login.hbs');
+});
+app.post('/register', (req, res) => {
+    const username = req.body.username;
+    const password = req.body.pass;
+    const password2 = req.body.confpass;
+    if(password !== password2) {
+        res.redirect('/error?type=notsamepass');
+        return;
+    }
+    if(password.length < 6) {
+        res.redirect('/error?type=shortpass');
+        return;
+    }
+    if(username.length < 4) {
+        res.redirect('/error?type=shortusername');
+        return;
+    }
+    const user = {
+        username: username,
+        password: password
+    }
+    users.find({ username: username }, function (err, docs) {    
+        if (docs.length > 0) {
+            res.redirect('/error?type=usertaken');
+            return;
+        }
+        else {
+            users.insert(user, function (err, newDoc) {
+                console.log("dodano dokument (obiekt):")
+                console.log(newDoc)
+                console.log("unikalne id dokumentu: "+newDoc._id)
+                let id = newDoc._id
+                res.redirect('/login');
+                
+        });
+        }
+     });
+
+});
+app.post('/login', (req,res) => {
+    const username = req.body.username;
+    const password = req.body.pass;
+    const user = {
+        username: username,
+        password: password
+    }
+    users.find({ username: username, password: password }, function (err, docs) {    
+        if (docs.length===0) {
+            res.redirect('/error?type=passwordwrong');
+            return;
+        }
+        else {
+            res.cookie("login", username, { httpOnly: true, maxAge: 30 * 1000 }); 
+            res.redirect('/index2?username='+username);
+        }
+    });
+});
+app.get('/index2', (req, res) => {
+    const username = req.query.username;
+    if(!req.cookies.login) {
+        res.redirect('/logout');
+        return;
+    }
+    res.render('index2.hbs', {username});
+});
+app.get('/error', (req, res) => {
+    const type = req.query.type;
+    let context = '';
+    if(type==='notsamepass') {
+        context = 'Hasła nie są takie same!';
+    }
+    if(type==='usertaken') {
+        context = 'Użytkownik o podanej nazwie już istnieje!';
+    }
+    if(type==='passwordwrong') {
+        context = 'Niepoprawne hasło!';
+    }
+    if(type==='shortpass') {
+        context = 'Hasło jest za krótkie!';
+    }
+    if(type==='shortusername') {
+        context = 'Nazwa użytkownika jest za krótka!';
+    }
+    res.render('error.hbs', {context});
+});
+app.get('/logout', (req, res) => {
+    res.clearCookie("login");
+    res.render('logout.hbs');
+});
+//=====================
 app.listen(PORT, function () {
     console.log("start serwera na porcie " + PORT)
 })

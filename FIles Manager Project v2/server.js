@@ -91,7 +91,7 @@ app.get('/addfolder', function (req, res) {
     const dirname = req.query.dirname;
     if (!fs.existsSync("./" + currentpath + "/" + + dirname)) {
         fs.mkdir(currentpath + "/" + dirname, (err) => {
-            if (err) throw err
+            if (err) console.log('juz istnieje')
             console.log("jest");
             res.redirect("/filemanager")
         })
@@ -104,7 +104,7 @@ app.get("/addfile", function (req, res) {
     const filename = req.query.filename;
     if (!fs.existsSync("./" + currentpath + "/" + filename)) {
         fs.writeFile("./" + currentpath + "/" + filename, "", (err) => {
-            if (err) throw err
+            if (err) console.log('juz istnieje!')
             console.log("plik utworzony");
             res.redirect("/filemanager")
         })
@@ -161,7 +161,7 @@ app.get("/showfile", function (req, res) {
         }
     });
 })
-app.get("/previewImage", function(req, res) {
+app.get("/previewImage", function (req, res) {
     let pathtoimg = req.query.name;
     res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(__dirname + pathtoimg);
@@ -177,10 +177,10 @@ app.get("/showimage", function (req, res) {
     console.log(imagename);
     res.render("image.hbs", { imagename, effects, currentpath });
 })
-app.post('/saveimage', function(req, res) {
+app.post('/saveimage', function (req, res) {
     const imagedata = req.body.image;
     const pathtoimg = req.body.path;
-    let imagedata1 = imagedata.split(",")[1]; 
+    let imagedata1 = imagedata.split(",")[1];
     console.log(pathtoimg);
     let imageBuffer = Buffer.from(imagedata1, 'base64');
     fs.writeFileSync("./" + pathtoimg, imageBuffer);
@@ -301,15 +301,15 @@ app.post('/register', (req, res) => {
     const username = req.body.username;
     const password = req.body.pass;
     const password2 = req.body.confpass;
-    if(password !== password2) {
+    if (password !== password2) {
         res.redirect('/error?type=notsamepass');
         return;
     }
-    if(password.length < 6) {
+    if (password.length < 6) {
         res.redirect('/error?type=shortpass');
         return;
     }
-    if(username.length < 4) {
+    if (username.length < 4) {
         res.redirect('/error?type=shortusername');
         return;
     }
@@ -317,7 +317,7 @@ app.post('/register', (req, res) => {
         username: username,
         password: password
     }
-    users.find({ username: username }, function (err, docs) {    
+    users.find({ username: username }, function (err, docs) {
         if (docs.length > 0) {
             res.redirect('/error?type=usertaken');
             return;
@@ -326,60 +326,60 @@ app.post('/register', (req, res) => {
             users.insert(user, function (err, newDoc) {
                 console.log("dodano dokument (obiekt):")
                 console.log(newDoc)
-                console.log("unikalne id dokumentu: "+newDoc._id)
+                console.log("unikalne id dokumentu: " + newDoc._id)
                 let id = newDoc._id
                 res.redirect('/login');
-                
-        });
+
+            });
         }
-     });
+    });
 
 });
-app.post('/login', (req,res) => {
+app.post('/login', (req, res) => {
     const username = req.body.username;
     const password = req.body.pass;
     const user = {
         username: username,
         password: password
     }
-    users.find({ username: username, password: password }, function (err, docs) {    
-        if (docs.length===0) {
+    users.find({ username: username, password: password }, function (err, docs) {
+        if (docs.length === 0) {
             res.redirect('/error?type=passwordwrong');
             return;
         }
         else {
-            res.cookie("login", username, { httpOnly: true, maxAge: 30 * 1000 }); 
-            res.redirect('/index2?username='+username);
+            res.cookie("login", username, { httpOnly: true, maxAge: 30 * 1000 });
+            res.redirect('/index2?username=' + username);
         }
     });
 });
 app.get('/index2', (req, res) => {
     const username = req.query.username;
-    if(!req.cookies.login) {
+    if (!req.cookies.login) {
         res.redirect('/logout');
         return;
     }
-    res.render('index2.hbs', {username});
+    res.render('index2.hbs', { username });
 });
 app.get('/error', (req, res) => {
     const type = req.query.type;
     let context = '';
-    if(type==='notsamepass') {
+    if (type === 'notsamepass') {
         context = 'Hasła nie są takie same!';
     }
-    if(type==='usertaken') {
+    if (type === 'usertaken') {
         context = 'Użytkownik o podanej nazwie już istnieje!';
     }
-    if(type==='passwordwrong') {
+    if (type === 'passwordwrong') {
         context = 'Niepoprawne hasło!';
     }
-    if(type==='shortpass') {
+    if (type === 'shortpass') {
         context = 'Hasło jest za krótkie!';
     }
-    if(type==='shortusername') {
+    if (type === 'shortusername') {
         context = 'Nazwa użytkownika jest za krótka!';
     }
-    res.render('error.hbs', {context});
+    res.render('error.hbs', { context });
 });
 app.get('/logout', (req, res) => {
     res.clearCookie("login");

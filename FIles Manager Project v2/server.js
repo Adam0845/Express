@@ -19,6 +19,20 @@ app.engine('hbs', hbs({ defaultLayout: 'main.hbs' }));
 app.set('view engine', 'hbs');
 let currentpath = "upload"
 let splitedloc = [];
+const css_content = `body { \n  \t background: red \n }`;
+const html_content = `<!DOCTYPE html>
+<html lang="en"> 
+<head>\n 
+\t <meta charset="UTF-8"> 
+\t <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+\t <meta http-equiv="X-UA-Compatible" content="ie=edge"> 
+\t <title>Document/title> 
+</head> 
+<body>
+\t<h1>Html site</h1>  
+</body> 
+</html>`;
+const json_content = `{ \n "a": 1, \n "b": 2, \n "c": 3 \n }`;
 const filepath = path.join(__dirname, "upload", "file01.txt")
 const ksiega_rozszerzen = ['jpg', 'pdf', 'doc', 'mp4', 'zip', 'txt', 'png', 'gif', 'docs', 'txt', 'svg', 'html', 'css', "json", "js"]
 function takextension(fileName) {
@@ -102,12 +116,38 @@ app.get('/addfolder', function (req, res) {
 })
 app.get("/addfile", function (req, res) {
     const filename = req.query.filename;
+    let splitname = filename.split('.')
+    let extension = splitname[1];
+    console.log("Extension: ", extension);
     if (!fs.existsSync("./" + currentpath + "/" + filename)) {
+        if(extension === "html") {
+            fs.writeFile("./" + currentpath + "/" + filename, html_content, (err) => {
+                if (err) console.log('juz istnieje!')
+                console.log("plik utworzony");
+                res.redirect("/filemanager")
+            })
+        }
+        else if(extension === "css") {
+            fs.writeFile("./" + currentpath + "/" + filename, css_content, (err) => {
+                if (err) console.log('juz istnieje!')
+                console.log("plik utworzony");
+                res.redirect("/filemanager")
+            })
+        }
+        else if(extension === "json") {
+            fs.writeFile("./" + currentpath + "/" + filename, json_content, (err) => {
+                if (err) console.log('juz istnieje!')
+                console.log("plik utworzony");
+                res.redirect("/filemanager")
+            })
+        }
+        else {
         fs.writeFile("./" + currentpath + "/" + filename, "", (err) => {
             if (err) console.log('juz istnieje!')
             console.log("plik utworzony");
             res.redirect("/filemanager")
         })
+    }
     }
     else {
         res.redirect("/filemanager")
